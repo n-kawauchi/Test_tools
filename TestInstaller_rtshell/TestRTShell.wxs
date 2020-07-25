@@ -1,0 +1,222 @@
+<?xml version="1.0"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Product Id="*" 
+           Name="TestRTShell_x64" 
+           Language="1041" Codepage="932" 
+           Version="1.0.0.0" 
+           Manufacturer="AIST" 
+           UpgradeCode="587E2A6E-B444-11E9-B374-7085C22CD0D2">
+
+    <Package Id="*" Keywords="Installer" Description="RTShell Installer"
+             InstallerVersion="405" Languages="1041" Compressed="yes"
+             SummaryCodepage="932" />
+    <Media Id="1" Cabinet="RTShell.cab" EmbedCab="yes"/>
+
+    <!-- Check for Python 2.7 being installed -->
+    <Property Id="PYTHON27DIR">
+      <RegistrySearch Id="Python27DirKey"
+        Root="HKLM"
+        Key="SOFTWARE\Python\PythonCore\2.7\InstallPath"
+        Type="raw"
+        Win64="yes"
+        />
+    </Property>
+    <SetProperty Id="PYTHON27DIRKEY" After="AppSearch" Value="[PYTHON27DIR]" />
+
+    <!-- Check for Python 3.6 being installed -->
+    <Property Id="PYTHON36DIR_HKCU">
+      <RegistrySearch Id="Python36DirKey_HKCU"
+        Root="HKCU"
+        Key="SOFTWARE\Python\PythonCore\3.6\InstallPath"
+        Type="raw"
+        Win64="yes"
+        />
+    </Property>
+    <SetProperty Id="PYTHON36DIRKEY_HKCU" After="AppSearch" Value="[PYTHON36DIR_HKCU]" />
+
+    <Property Id="PYTHON36DIR_HKLM">
+      <RegistrySearch Id="Python36DirKey_HKLM"
+        Root="HKLM"
+        Key="SOFTWARE\Python\PythonCore\3.6\InstallPath"
+        Type="raw"
+        Win64="yes"
+        />
+    </Property>
+    <SetProperty Id="PYTHON36DIRKEY_HKLM" After="AppSearch" Value="[PYTHON36DIR_HKLM]" />
+
+    <!-- Check for Python 3.7 being installed -->
+    <Property Id="PYTHON37DIR_HKCU">
+      <RegistrySearch Id="Python37DirKey_HKCU"
+        Root="HKCU"
+        Key="SOFTWARE\Python\PythonCore\3.7\InstallPath"
+        Type="raw"
+        Win64="yes"
+        />
+    </Property>
+    <SetProperty Id="PYTHON37DIRKEY_HKCU" After="AppSearch" Value="[PYTHON37DIR_HKCU]" />
+
+    <Property Id="PYTHON37DIR_HKLM">
+      <RegistrySearch Id="Python37DirKey_HKLM"
+        Root="HKLM"
+        Key="SOFTWARE\Python\PythonCore\3.7\InstallPath"
+        Type="raw"
+        Win64="yes"
+        />
+    </Property>
+    <SetProperty Id="PYTHON37DIRKEY_HKLM" After="AppSearch" Value="[PYTHON37DIR_HKLM]" />
+
+    <Condition Message="[ProductName] requires Python 2.7 or 3.6 or 3.7">
+      <![CDATA[Installed OR PYTHON27DIR OR PYTHON36DIR_HKCU OR PYTHON36DIR_HKLM OR PYTHON37DIR_HKCU OR PYTHON37DIR_HKLM]]>
+    </Condition>
+
+    <InstallExecuteSequence>
+      <Custom Action="INST_RTSHELL_PY27" After='InstallFinalize'>
+	        NOT Installed AND PYTHON27DIR
+      </Custom>
+      <Custom Action="UNINST_RTSHELL_PY27" Before='InstallInitialize'>
+	        Installed AND PYTHON27DIR
+      </Custom>
+
+      <Custom Action="INST_RTSHELL_PY36HKCU" After='InstallFinalize'>
+	        NOT Installed AND PYTHON36DIR_HKCU
+      </Custom>
+      <Custom Action="UNINST_RTSHELL_PY36HKCU" Before='InstallInitialize'>
+	        Installed AND PYTHON36DIR_HKCU
+      </Custom>
+      <Custom Action="INST_RTSHELL_PY36HKLM" Before='InstallFinalize'>
+	        NOT Installed AND PYTHON36DIR_HKLM
+      </Custom>
+<!--      <Custom Action="UNINST_RTSHELL_PY36HKLM" After='InstallInitialize'> -->
+      <Custom Action="UNINST_RTSHELL_PY36HKLM" Before='RemoveFiles'>
+	        Installed AND PYTHON36DIR_HKLM
+      </Custom>
+
+      <Custom Action="INST_RTSHELL_PY37HKCU" After='InstallFinalize'>
+	        NOT Installed AND PYTHON37DIR_HKCU
+      </Custom>
+      <Custom Action="UNINST_RTSHELL_PY37HKCU" Before='InstallInitialize'>
+	        Installed AND PYTHON37DIR_HKCU
+      </Custom>
+      <Custom Action="INST_RTSHELL_PY37HKLM" Before='InstallFinalize'>
+	        NOT Installed AND PYTHON37DIR_HKLM
+      </Custom>
+<!--      <Custom Action="UNINST_RTSHELL_PY37HKLM" After='InstallInitialize'> -->
+      <Custom Action="UNINST_RTSHELL_PY37HKLM" Before='RemoveFiles'>
+	        Installed AND PYTHON37DIR_HKLM
+      </Custom>
+    </InstallExecuteSequence>
+
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="PYTHON27DIRKEY" Name="[[PYTHON27DIR]]">
+        <Component Id="Py27_rtshell_install_bat" Guid="A7068930-B444-11E9-804D-7085C22CD0D2">
+          <File Id="Py27_rtshell_install_bat"  Source="install-rtshell-aist.bat" KeyPath="yes" />
+        </Component>
+        <Component Id="Py27_rtshell_uninstall_bat" Guid="F23E90CF-CA03-11E9-85A5-001C427B25F6">
+          <File Id="Py27_rtshell_uninstall_bat"  Source="uninstall-rtshell-aist.bat" KeyPath="yes" />
+        </Component>
+      </Directory>
+      <Directory Id="PYTHON36DIRKEY_HKCU" Name="[[PYTHON36DIR_HKCU]]">
+        <Component Id="Py36HKCU_rtshell_install_bat" Guid="A7520A40-BA5C-11E9-8E11-001C427B25F6">
+          <File Id="Py36HKCU_rtshell_install_bat"  Source="install-rtshell-aist.bat" KeyPath="yes" />
+        </Component>
+        <Component Id="Py36HKCU_rtshell_uninstall_bat" Guid="BCFD27C0-CA07-11E9-AFA1-001C427B25F6">
+          <File Id="Py36HKCU_rtshell_uninstall_bat"  Source="uninstall-rtshell-aist.bat" KeyPath="yes" />
+        </Component>
+      </Directory>
+      <Directory Id="PYTHON36DIRKEY_HKLM" Name="[[PYTHON36DIR_HKLM]]">
+        <Component Id="Py36HKLM_rtshell_install_bat" Guid="48263861-BA5D-11E9-9D67-001C427B25F6">
+          <File Id="Py36HKLM_rtshell_install_bat"  Source="install-rtshell-aist.bat" KeyPath="yes" />
+        </Component>
+        <Component Id="Py36HKLM_rtshell_uninstall_bat" Guid="DAA63BE1-CA07-11E9-BF19-001C427B25F6">
+          <File Id="Py36HKLM_rtshell_uninstall_bat"  Source="uninstall-rtshell-aist.bat" KeyPath="yes" />
+        </Component>
+      </Directory>
+      <Directory Id="PYTHON37DIRKEY_HKCU" Name="[[PYTHON37DIR_HKCU]]">
+        <Component Id="Py37HKCU_rtshell_install_bat" Guid="1E4EB3F0-BA5D-11E9-8AC3-001C427B25F6">
+          <File Id="Py37HKCU_rtshell_install_bat"  Source="install-rtshell-aist.bat" KeyPath="yes" />
+        </Component>
+        <Component Id="Py37HKCU_rtshell_uninstall_bat" Guid="FDE8B91E-CA07-11E9-BE2D-001C427B25F6">
+          <File Id="Py37HKCU_rtshell_uninstall_bat"  Source="uninstall-rtshell-aist.bat" KeyPath="yes" />
+        </Component>
+      </Directory>
+      <Directory Id="PYTHON37DIRKEY_HKLM" Name="[[PYTHON37DIR_HKLM]]">
+        <Component Id="Py37HKLM_rtshell_install_bat" Guid="62F79B70-BA5D-11E9-89DC-001C427B25F6">
+          <File Id="Py37HKLM_rtshell_install_bat"  Source="install-rtshell-aist.bat" KeyPath="yes" />
+        </Component>
+        <Component Id="Py37HKLM_rtshell_uninstall_bat" Guid="1BEC494F-CA08-11E9-A55A-001C427B25F6">
+          <File Id="Py37HKLM_rtshell_uninstall_bat"  Source="uninstall-rtshell-aist.bat" KeyPath="yes" />
+        </Component>
+      </Directory>
+    </Directory>
+
+    <Feature Id="MainProduct" Title="MainProduct" Level="1">
+      <Feature Id="RTSHELL_PY27" Level="1"  Title="RTShell for Python 2.7"
+          ConfigurableDirectory="PYTHON27DIRKEY">
+        <Condition Level="0">NOT PYTHON27DIR AND NOT REMOVE</Condition>
+        <ComponentRef Id="Py27_rtshell_install_bat" />
+        <ComponentRef Id="Py27_rtshell_uninstall_bat" />
+      </Feature>
+      <Feature Id="RTSHELL_PY36_HKCU" Level="1"  Title="RTShell for Python 3.6 HKCU"
+          ConfigurableDirectory="PYTHON36DIRKEY_HKCU">
+        <Condition Level="0">NOT PYTHON36DIR_HKCU AND NOT REMOVE</Condition>
+        <ComponentRef Id="Py36HKCU_rtshell_install_bat" />
+        <ComponentRef Id="Py36HKCU_rtshell_uninstall_bat" />
+      </Feature>
+      <Feature Id="RTSHELL_PY36_HKLM" Level="1"  Title="RTShell for Python 3.6 HKLM"
+          ConfigurableDirectory="PYTHON36DIRKEY_HKLM">
+        <Condition Level="0">NOT PYTHON36DIR_HKLM AND NOT REMOVE</Condition>
+        <ComponentRef Id="Py36HKLM_rtshell_install_bat" />
+        <ComponentRef Id="Py36HKLM_rtshell_uninstall_bat" />
+      </Feature>
+      <Feature Id="RTSHELL_PY37_HKCU" Level="1"  Title="RTShell for Python 3.7 HKCU"
+          ConfigurableDirectory="PYTHON37DIRKEY_HKCU">
+        <Condition Level="0">NOT PYTHON37DIR_HKCU AND NOT REMOVE</Condition>
+        <ComponentRef Id="Py37HKCU_rtshell_install_bat" />
+        <ComponentRef Id="Py37HKCU_rtshell_uninstall_bat" />
+      </Feature>
+      <Feature Id="RTSHELL_PY37_HKLM" Level="1"  Title="RTShell for Python 3.7 HKLM"
+          ConfigurableDirectory="PYTHON37DIRKEY_HKLM">
+        <Condition Level="0">NOT PYTHON37DIR_HKLM AND NOT REMOVE</Condition>
+        <ComponentRef Id="Py37HKLM_rtshell_install_bat" />
+        <ComponentRef Id="Py37HKLM_rtshell_uninstall_bat" />
+      </Feature>
+    </Feature>
+
+    <CustomAction Id='INST_RTSHELL_PY27' Directory="PYTHON27DIRKEY"
+                  ExeCommand='cmd.exe /C "install-rtshell-aist.bat"' 
+                  Return='check' />
+    <CustomAction Id='UNINST_RTSHELL_PY27' Directory="PYTHON27DIRKEY"
+                  ExeCommand='cmd.exe /C "uninstall-rtshell-aist.bat"' 
+                  Return='check' />
+
+    <CustomAction Id='INST_RTSHELL_PY36HKCU' Directory="PYTHON36DIRKEY_HKCU"
+                  ExeCommand='cmd.exe /C "install-rtshell-aist.bat"' 
+                  Return='check' />
+    <CustomAction Id='UNINST_RTSHELL_PY36HKCU' Directory="PYTHON36DIRKEY_HKCU"
+                  ExeCommand='cmd.exe /C "uninstall-rtshell-aist.bat"' 
+                  Return='check' />
+    <CustomAction Id='INST_RTSHELL_PY36HKLM' Directory="PYTHON36DIRKEY_HKLM"
+                  ExeCommand='cmd.exe /C "install-rtshell-aist.bat"' 
+                  Execute="deferred" Impersonate="no"
+                  Return='check' />
+    <CustomAction Id='UNINST_RTSHELL_PY36HKLM' Directory="PYTHON36DIRKEY_HKLM"
+                  ExeCommand='cmd.exe /C "uninstall-rtshell-aist.bat"' 
+                  Execute="deferred" Impersonate="no"
+                  Return='check' />
+
+    <CustomAction Id='INST_RTSHELL_PY37HKCU' Directory="PYTHON37DIRKEY_HKCU"
+                  ExeCommand='cmd.exe /C "install-rtshell-aist.bat"' 
+                  Return='check' />
+    <CustomAction Id='UNINST_RTSHELL_PY37HKCU' Directory="PYTHON37DIRKEY_HKCU"
+                  ExeCommand='cmd.exe /C "uninstall-rtshell-aist.bat"' 
+                  Return='check' />
+    <CustomAction Id='INST_RTSHELL_PY37HKLM' Directory="PYTHON37DIRKEY_HKLM"
+                  ExeCommand='cmd.exe /C "install-rtshell-aist.bat"' 
+                  Execute="deferred" Impersonate="no"
+                  Return='check' />
+    <CustomAction Id='UNINST_RTSHELL_PY37HKLM' Directory="PYTHON37DIRKEY_HKLM"
+                  ExeCommand='cmd.exe /C "uninstall-rtshell-aist.bat"' 
+                  Execute="deferred" Impersonate="no"
+                  Return='check' />
+  </Product>
+</Wix>
