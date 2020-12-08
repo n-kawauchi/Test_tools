@@ -6,7 +6,7 @@ import requests
 from requests.auth import HTTPBasicAuth
 import argparse
 
-LATEST_RELEASE = "v1.2.1"
+LATEST_RELEASE = "v1.2.2"
 BRANCH = "svn/RELENG_1_2"
 BRANCH_RTP = "RELENG_1_2"
 GITHUB_OWNER = "OpenRTM"
@@ -14,12 +14,12 @@ GITHUB_OWNER = "OpenRTM"
 p = argparse.ArgumentParser()
 p.add_argument('repository', help='GitHub Repository [Example: OpenRTM-aist]')
 p.add_argument('username', help='GitHub user name')
-p.add_argument('password', help='GitHub user password')
+p.add_argument('token', help='GitHub user access token')
 args = p.parse_args()
 
-def get_hash_of_latest_release(reporitory, username, password):
+def get_hash_of_latest_release(reporitory, username, token):
 	url = "https://api.github.com/repos/" + GITHUB_OWNER + "/" + reporitory + "/tags"
-	r = requests.get(url, auth=HTTPBasicAuth(username, password))
+	r = requests.get(url, auth=HTTPBasicAuth(username, token))
 	
 	for item in r.json():
 		if item["name"] == LATEST_RELEASE:
@@ -29,9 +29,9 @@ def get_hash_of_latest_release(reporitory, username, password):
 
 	return sha
 
-def get_PR_number_of_latest_release(repository, username, password, sha):
+def get_PR_number_of_latest_release(repository, username, token, sha):
 	url = "https://api.github.com/repos/" + GITHUB_OWNER + "/" + repository + "/commits/" + sha
-	r = requests.get(url, auth=HTTPBasicAuth(username, password))
+	r = requests.get(url, auth=HTTPBasicAuth(username, token))
 
 	item = r.json()
 	if item["sha"] == sha:
@@ -49,7 +49,7 @@ def get_PR_number_of_latest_release(repository, username, password, sha):
 
 		return int(PR_number)
 
-def	get_merged_PR_list(repository, username, password, number):
+def	get_merged_PR_list(repository, username, token, number):
 	page = 1
 	PR_list = []
 	loopend = "false"
@@ -57,7 +57,7 @@ def	get_merged_PR_list(repository, username, password, number):
 
 	while len(PR_list) > 0 or page == 1: 
 		url = "https://api.github.com/repos/" + GITHUB_OWNER + "/" + repository + "/pulls?state=closed&page=" + str(page)
-		r = requests.get(url, auth=HTTPBasicAuth(username, password))
+		r = requests.get(url, auth=HTTPBasicAuth(username, token))
 		for item in r.json():
 			if item["base"]["ref"] == BRANCH:
 				if int(item["number"]) > int(number):
@@ -93,13 +93,13 @@ if __name__ == '__main__':
 	if len(args) > 3:
 		repository = args[1]
 		username = args[2]
-		password = args[3]
+		token = args[3]
 		print("Repository: ", GITHUB_OWNER,"/",repository)
 		if repository == "OpenRTP-aist":
 			BRANCH = BRANCH_RTP
 		
-	sha = get_hash_of_latest_release(repository, username, password)
-	number = get_PR_number_of_latest_release(repository, username, password, sha)
-	PR_list = get_merged_PR_list(repository, username, password, number)
+	sha = get_hash_of_latest_release(repository, username, token)
+	number = get_PR_number_of_latest_release(repository, username, token, sha)
+	PR_list = get_merged_PR_list(repository, username, token, number)
 	output(PR_list)
 
