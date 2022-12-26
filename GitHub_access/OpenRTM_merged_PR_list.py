@@ -6,9 +6,9 @@ import requests
 from requests.auth import HTTPBasicAuth
 import argparse
 
-LATEST_RELEASE = "v1.2.2"
-BRANCH = "svn/RELENG_1_2"
-BRANCH_RTP = "RELENG_1_2"
+LATEST_RELEASE = "v2.0.0"
+BRANCH = "master"
+BRANCH_RTP = "master"
 GITHUB_OWNER = "OpenRTM"
 
 p = argparse.ArgumentParser()
@@ -19,8 +19,8 @@ args = p.parse_args()
 
 def get_hash_of_latest_release(reporitory, username, token):
 	url = "https://api.github.com/repos/" + GITHUB_OWNER + "/" + reporitory + "/tags"
-	r = requests.get(url, auth=HTTPBasicAuth(username, token))
-	
+	r = requests.get(url, auth=(username, token))
+
 	for item in r.json():
 		if item["name"] == LATEST_RELEASE:
 			sha = item["commit"]["sha"]
